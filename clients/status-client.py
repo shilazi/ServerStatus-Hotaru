@@ -10,11 +10,17 @@ import json
 import subprocess
 from collections import deque
 
-SERVER = "127.0.0.1"
-PORT = 35601
-USER = "USER"
-PASSWORD = "USER_PASSWORD"
-INTERVAL = 1  # 更新间隔，单位：秒
+# 服务端 IP 或域名
+SERVER = os.getenv("SERVER", "127.0.0.1")
+# 服务端端口
+PORT = int(os.getenv("PORT", 35601))
+# 服务端定义的用户名
+USER = os.getenv("USERNAME", "USER")
+# 服务端定义的密码
+PASSWORD = os.getenv("PASSWORD", "PASSWORD")
+# 客户端上报更新间隔，单位：秒
+INTERVAL = int(os.getenv("INTERVAL", 1))
+PROCFS_PATH = os.getenv("PROCFS_PATH", "/proc")
 
 
 def check_interface(net_name):
@@ -24,7 +30,7 @@ def check_interface(net_name):
 
 
 def get_uptime():
-    with open('/proc/uptime', 'r') as f:
+    with open(f'{PROCFS_PATH}/uptime', 'r') as f:
         uptime = f.readline().split('.')
     return int(uptime[0])
 
@@ -32,7 +38,7 @@ def get_uptime():
 def get_memory():
     re_parser = re.compile(r'(\S*):\s*(\d*)\s*kB')
     result = dict()
-    for line in open('/proc/meminfo'):
+    for line in open(f'{PROCFS_PATH}/meminfo'):
         match = re_parser.match(line)
         if match:
             result[match.group(1)] = int(match.group(2))
@@ -62,7 +68,7 @@ def get_load():
 
 
 def get_cpu_time():
-    with open('/proc/stat', 'r') as stat_file:
+    with open(f'{PROCFS_PATH}/stat', 'r') as stat_file:
         time_list = stat_file.readline().split()[1:]
     time_list = list(map(int, time_list))
     return sum(time_list), time_list[3]
@@ -96,7 +102,7 @@ class Network:
         net_out = 0
         re_parser = re.compile(r'([^\s]+):[\s]*(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+('
                                r'\d+)\s+(\d+)\s+(\d+)')
-        with open('/proc/net/dev') as f:
+        with open(f'{PROCFS_PATH}/net/dev') as f:
             for line in f.readlines():
                 net_info = re_parser.findall(line)
                 if net_info:

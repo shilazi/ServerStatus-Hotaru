@@ -6,15 +6,24 @@
 
 import socket
 import time
+import os
 import json
 import psutil
 from collections import deque
 
-SERVER = "127.0.0.1"
-PORT = 35601
-USER = "USER"
-PASSWORD = "USER_PASSWORD"
-INTERVAL = 1  # 更新间隔，单位：秒
+# 服务端 IP 或域名
+SERVER = os.getenv("SERVER", "127.0.0.1")
+# 服务端端口
+PORT = int(os.getenv("PORT", 35601))
+# 服务端定义的用户名
+USER = os.getenv("USERNAME", "USER")
+# 服务端定义的密码
+PASSWORD = os.getenv("PASSWORD", "PASSWORD")
+# 客户端上报更新间隔，单位：秒
+INTERVAL = int(os.getenv("INTERVAL", 1))
+
+# https://github.com/giampaolo/psutil/issues/1845
+psutil.PROCFS_PATH = os.getenv("PROCFS_PATH", "/proc")
 
 
 def check_interface(net_name):

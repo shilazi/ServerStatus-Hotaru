@@ -1,0 +1,17 @@
+version: "2.2"
+
+services:
+  client:
+    image: shilazi/serverstatus:latest
+    container_name: statclient
+    command:
+    - client
+    environment:
+      SERVER: "a.b.c.d"
+      PORT: "35601"
+      USERNAME: "USER"
+      PASSWORD: "PASSWORD"
+      INTERVAL: "1"
+    volumes:
+    - /proc:/rootfs/proc:ro
+    restart: always
